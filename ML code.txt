@@ -1,0 +1,793 @@
+﻿Code:1 feature engineering handling missing values ,encoding ,scaling
+
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+
+
+# Load Dataset
+df = pd.read_csv("train.csv")
+
+
+print("Original Dataset")
+print(df.head())
+
+
+# Check Missing Values
+print(" \nMissing Values")
+print(df.isnull().sum())
+
+
+# Handle Missing Values
+df['Age'].fillna(df['Age'].mean(), inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+
+
+# Encode Categorical Variables
+encoder = LabelEncoder()
+
+
+df['Sex'] = encoder.fit_transform(df['Sex'])
+df['Embarked'] = encoder.fit_transform(df['Embarked'])
+
+
+# Scale Numerical Attributes
+scaler = StandardScaler()
+
+
+df[['Age', 'Fare']] = scaler.fit_transform(df[['Age', 'Fare']])
+
+
+print(" \nPreprocessed Dataset")
+print(df[['Age','Fare','Sex','Embarked']].head())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+code2:Dimensionality Reduction using PCA LDA
+
+
+# Import libraries
+import pandas as pd
+import time
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+
+# Load Dataset
+df = pd.read_csv("data.csv")
+
+
+# Drop unnecessary columns
+df.drop(['id', 'Unnamed: 32'], axis=1, inplace=True)
+
+
+# Encode target variable
+encoder = LabelEncoder()
+df['diagnosis'] = encoder.fit_transform(df['diagnosis'])
+
+
+# Separate features and target
+X = df.drop('diagnosis', axis=1)
+
+
+y = df['diagnosis']
+
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42)
+
+
+# Standardization
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+# ---------------- PCA ----------------
+pca = PCA(n_components=2)
+
+
+start_time = time.time()
+
+
+X_train_pca = pca.fit_transform(X_train)
+X_test_pca = pca.transform(X_test)
+
+
+model_pca = LogisticRegression()
+model_pca.fit(X_train_pca, y_train)
+
+
+pca_pred = model_pca.predict(X_test_pca)
+
+
+pca_time = time.time() - start_time
+
+
+# ---------------- LDA ----------------
+
+
+lda = LinearDiscriminantAnalysis(n_components=1)
+
+
+start_time = time.time()
+
+
+X_train_lda = lda.fit_transform(X_train, y_train)
+X_test_lda = lda.transform(X_test)
+
+
+model_lda = LogisticRegression()
+model_lda.fit(X_train_lda, y_train)
+
+
+lda_pred = model_lda.predict(X_test_lda)
+
+
+lda_time = time.time() - start_time
+
+
+# Accuracy
+pca_accuracy = accuracy_score(y_test, pca_pred)
+lda_accuracy = accuracy_score(y_test, lda_pred)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Code 3: Multiple Linear Regression
+
+
+
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import numpy as np
+
+
+# Load Dataset
+df = pd.read_csv("Housing.csv")
+
+
+# Independent Variables
+X = df[['area','bedrooms','bathrooms','stories','parking']]
+
+
+# Dependent Variable
+y = df['price']
+
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42)
+
+
+# Train Model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+
+# Predictions
+y_pred = model.predict(X_test)
+
+
+# Evaluation Metrics
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_test, y_pred)
+
+
+print("MSE :", mse)
+print("RMSE :", rmse)
+print("R2 Score :", r2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Code 4: Polynomial Regression and bias variance trade off
+
+
+import pandas as pd
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+
+
+# Load Dataset
+df = pd.read_csv("Salary_Data.csv")
+
+
+X = df[['YearsExperience']]
+y = df['Salary']
+
+
+# Degree 2
+poly2 = PolynomialFeatures(degree=2)
+X2 = poly2.fit_transform(X)
+
+
+model2 = LinearRegression()
+
+
+model2.fit(X2, y)
+
+
+pred2 = model2.predict(X2)
+
+
+# Degree 3
+poly3 = PolynomialFeatures(degree=3)
+X3 = poly3.fit_transform(X)
+
+
+model3 = LinearRegression()
+model3.fit(X3, y)
+
+
+pred3 = model3.predict(X3)
+
+
+# Degree 5
+poly5 = PolynomialFeatures(degree=5)
+X5 = poly5.fit_transform(X)
+
+
+model5 = LinearRegression()
+model5.fit(X5, y)
+
+
+pred5 = model5.predict(X5)
+
+
+print("Degree 2 R2 Score :", round(r2_score(y, pred2),4))
+print("Degree 3 R2 Score :", round(r2_score(y, pred3),4))
+print("Degree 5 R2 Score :", round(r2_score(y, pred5),4))
+
+
+
+
+
+
+
+
+Code 5 : Ridge and lasso Regularization
+
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.metrics import r2_score
+data = load_breast_cancer()
+X = data.data
+y = data.target
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42)
+
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+ridge = Ridge(alpha=1.0)
+ridge.fit(X_train, y_train)
+lasso = Lasso(alpha=0.01)
+lasso.fit(X_train, y_train)
+ridge_pred = ridge.predict(X_test)
+lasso_pred = lasso.predict(X_test)
+print("Ridge R 2 Score:", r2_score(y_test, ridge_pred))
+print("Lasso R 2 Score:", r2_score(y_test, lasso_pred))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Code 6: logistic regression and classification model
+
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
+data = load_breast_cancer()
+
+
+X = data.data
+y = data.target
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+model = LogisticRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print("Confusion Matrix")
+print( confusion_matrix(y_test, y_pred))
+print("Precision:", precision_score(y_test, y_pred))
+print("Recall:", recall_score(y_test, y_pred))
+print("F1 Score:", f1_score(y_test, y_pred))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Code 7:Support vector machine
+
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+data = load_breast_cancer()
+X = data.data
+y = data.target
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42)
+scaler = StandardScaler()
+X_train = scaler.fit_ transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+linear_svm = SVC(kernel='linear')
+linear_svm.fit(X_train, y_train)
+rbf_svm = SVC(kernel='rbf')
+rbf_svm.fit(X_train, y_train)
+linear_pred = linear_svm.predict(X_test)
+rbf_pred = rbf_svm.predict(X_test)
+print("Linear SVM Accuracy:",
+accuracy_score(y_test, linear_pred))
+print("RBF SVM Accuracy:",
+accuracy_score(y_test, rbf_pred))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Code 8: K-means clustering
+
+
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+data = load_iris()
+X = data.data
+
+
+wcss = []
+for k in range(2,11):
+kmeans = KMeans(n_clusters=k,
+random_state=42)
+kmeans.fit(X)
+wcss.append(kmeans.inertia_)
+score = silhouette_score(
+X,
+kmeans.labels_
+)
+print("K =", k,
+"Silhouette Score =", score)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Code 9: DBSCAN
+
+
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN
+
+
+iris = load_iris()
+
+
+X = iris.data[:, :2]
+
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+
+dbscan = DBSCAN(eps=0.5, min_samples=5)
+
+
+clusters = dbscan.fit_predict(X_scaled)
+
+
+print("Cluster Labels:")
+print(clusters)
+
+
+n_clusters = len(set(clusters)) - (1 if -1 in clusters else 0)
+n_noise = list(clusters).count( -1)
+
+
+print("Number of Clusters:", n_clusters)
+print("Number of Noise Points:", n_noise)
+
+
+plt.figure(figsize=(8,6))
+plt.scatter(X_scaled[:,0], X_scaled[:,1], c=clusters)
+plt.title("DBSCAN Clustering")
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Code 10: Ensemble learning vs baseline 
+
+
+import pandas as pd
+
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+
+
+# Load Dataset
+
+
+data = load_breast_cancer()
+
+
+X = data.data
+y = data.target
+
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42
+)
+
+
+# Baseline Model
+dt = DecisionTreeClassifier(random_state=42)
+dt.fit(X_train, y_train)
+
+
+# Random Forest
+rf = RandomForestClassifier(
+n_estimators=100,
+random_state=42
+)
+rf.fit(X_train, y_train)
+
+
+# AdaBoost
+ab = AdaBoostClassifier(
+n_estimators=100,
+random_state=42
+)
+ab.fit(X_train, y_train)
+
+
+# Predictions
+dt_pred = dt.predict(X_test)
+rf_pred = rf.predict(X_test)
+ab_pred = ab.predict(X_test)
+
+
+# Accuracy Scores
+print( "Decision Tree Accuracy:",
+accuracy_score(y_test, dt_pred))
+
+
+print("Random Forest Accuracy:",
+accuracy_score(y_test, rf_pred))
+
+
+print("AdaBoost Accuracy:",
+accuracy_score(y_test, ab_pred))
+
+
+print(" \nClassification Report")
+print(classification_report(y_test, rf_pred))
